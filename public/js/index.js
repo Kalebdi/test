@@ -1,69 +1,52 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const content = document.getElementById('content');
-    const pwaBtn = document.getElementById('pwa-install-btn');
-    const toggleBtn = document.getElementById('toggle-sidebar-btn');
-    const closeBtn = document.getElementById('close-sidebar-btn');
-    let deferredPrompt;
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const messagesWrapper = document.getElementById('messages-wrapper');
 
-    function toggleSidebar() {
-        if (!sidebar || !overlay || !content) return;
-        const isMobile = window.innerWidth < 1024;
-        const isClosed = sidebar.classList.contains('-translate-x-full');
+    async function handleChat() {
+        const message = messageInput.value.trim();
+        if (!message) return;
 
-        if (isClosed) {
-            sidebar.classList.remove('-translate-x-full');
-            if (isMobile) {
-                overlay.classList.remove('hidden');
-            } else {
-                content.classList.add('lg:ml-72');
+        // Tampilkan pesan user di layar
+        addMessageToUI('user', message);
+        messageInput.value = '';
+
+        // Placeholder balasan AI
+        const aiDiv = addMessageToUI('bot', '<span class="animate-pulse">...</span>');
+
+        try {
+            const response = await fetch('/api/chat', { // SESUAIKAN ENDPOINT API KAMU
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            if (!response.ok) throw new Error('Unauthorized or Server Error');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            aiDiv.innerHTML = ''; // Hapus loading
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                aiDiv.innerHTML += decoder.decode(value);
+                // Auto scroll
+                window.scrollTo(0, document.body.scrollHeight);
             }
-        } else {
-            sidebar.classList.add('-translate-x-full');
-            if (isMobile) {
-                overlay.classList.add('hidden');
-            } else {
-                content.classList.remove('lg:ml-72');
-            }
+        } catch (err) {
+            aiDiv.innerHTML = "⚠️ Gagal mengirim pesan. Pastikan backend mengizinkan akses Guest.";
         }
     }
 
-    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
-    if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-    if (overlay) overlay.addEventListener('click', toggleSidebar);
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (window.innerWidth >= 1024 && overlay) {
-                overlay.classList.add('hidden');
-            }
-        }, 100);
-    }, { passive: true });
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
-
-    if (pwaBtn) {
-        pwaBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    pwaBtn.classList.add('hidden');
-                }
-            }
-        });
+    function addMessageToUI(role, text) {
+        const div = document.createElement('div');
+        div.className = `p-4 mb-4 rounded-xl ${role === 'user' ? 'bg-purple-900/20 ml-auto' : 'bg-[#1a1a24] mr-auto'} max-w-[80%]`;
+        div.innerHTML = text;
+        messagesWrapper.appendChild(div);
+        return div;
     }
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(() => {});
-        });
-    }
+    sendBtn.onclick = handleChat;
+    messageInput.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChat(); } };
 });
