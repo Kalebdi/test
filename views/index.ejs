@@ -19,197 +19,111 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
-      :root {
-        --bg-dark: #050508;
+      :root { --bg-dark: #050508; }
+      html, body {
+        height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden;
+        background-color: var(--bg-dark); font-family: "Inter", sans-serif;
+        position: fixed; inset: 0; -webkit-tap-highlight-color: transparent;
       }
-      html,
-      body {
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: var(--bg-dark);
-        font-family: "Inter", sans-serif;
-        position: fixed;
-        inset: 0;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .safe-pt {
-        padding-top: env(safe-area-inset-top);
-      }
-      .safe-pb {
-        padding-bottom: env(safe-area-inset-bottom);
-      }
-      .safe-pl {
-        padding-left: env(safe-area-inset-left);
-      }
-      .safe-pr {
-        padding-right: env(safe-area-inset-right);
-      }
-      @keyframes orbit-1 {
-        0% { transform: rotate3d(1, 1, 1, 0deg); }
-        100% { transform: rotate3d(1, 1, 1, 360deg); }
-      }
-      @keyframes orbit-2 {
-        0% { transform: rotate3d(1, -1, 1, 0deg); }
-        100% { transform: rotate3d(1, -1, 1, 360deg); }
-      }
-      @keyframes orbit-3 {
-        0% { transform: rotate3d(-1, 1, 1, 0deg); }
-        100% { transform: rotate3d(-1, 1, 1, 360deg); }
-      }
-      @keyframes orbit-4 {
-        0% { transform: rotate3d(1, 1, -1, 0deg); }
-        100% { transform: rotate3d(1, 1, -1, 360deg); }
-      }
-      @keyframes orbit-5 {
-        0% { transform: rotate3d(0, 1, 1, 0deg); }
-        100% { transform: rotate3d(0, 1, 1, 360deg); }
-      }
-      @keyframes orbit-6 {
-        0% { transform: rotate3d(1, 0, 0, 0deg); }
-        100% { transform: rotate3d(1, 0, 0, 360deg); }
-      }
-      @keyframes star-twinkle {
-        0%, 100% { opacity: 0.3; transform: scale(0.5); }
-        50% { opacity: 1; transform: scale(1.2); }
-      }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      @keyframes orbit-1 { 0% { transform: rotate3d(1, 1, 1, 0deg); } 100% { transform: rotate3d(1, 1, 1, 360deg); } }
+      @keyframes orbit-2 { 0% { transform: rotate3d(1, -1, 1, 0deg); } 100% { transform: rotate3d(1, -1, 1, 360deg); } }
+      @keyframes star-twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
       .animate-orbit-1 { animation: orbit-1 6s linear infinite; }
       .animate-orbit-2 { animation: orbit-2 7s linear infinite; }
-      .animate-orbit-3 { animation: orbit-3 8s linear infinite; }
-      .animate-orbit-4 { animation: orbit-4 9s linear infinite; }
-      .animate-orbit-5 { animation: orbit-5 10s linear infinite; }
-      .animate-orbit-6 { animation: orbit-6 11s linear infinite; }
       .animate-star { animation: star-twinkle 3s ease-in-out infinite; }
-      .star {
-        position: absolute;
-        background: white;
-        border-radius: 50%;
+      .star { position: absolute; background: white; border-radius: 50%; }
+      /* Glow Effect on Focus */
+      .input-container:focus-within {
+        border-color: rgba(168, 85, 247, 0.6);
+        box-shadow: 0 0 20px rgba(88, 28, 135, 0.3);
       }
     </style>
   </head>
   <body class="bg-[#050508] text-white font-sans h-dvh flex overflow-hidden">
-    <div id="overlay" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"></div>
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#0a0a12] border-r border-purple-900/20 flex flex-col transform -translate-x-full z-50 transition-transform duration-300 safe-pl shadow-2xl shadow-purple-900/10">
-      <div class="h-16 shrink-0 flex items-center px-4 border-b border-white/10 bg-[#0a0a12] relative">
-        <span class="font-bold text-lg text-purple-400 flex items-center gap-3"><img src="/logo.png" class="w-7 h-7 rounded-full shadow-lg" /> Dardcor <span class="text-white">AI</span></span>
-        <button id="close-sidebar-btn" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-2">
-          <i class="fas fa-times text-lg"></i>
-        </button>
+    <div id="overlay" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-sm lg:hidden"></div>
+    
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#0a0a12] border-r border-purple-900/20 flex flex-col transform -translate-x-full z-50 transition-transform duration-300 shadow-2xl">
+      <div class="h-16 shrink-0 flex items-center px-4 border-b border-white/10 bg-[#0a0a12]">
+        <span class="font-bold text-lg text-purple-400 flex items-center gap-3">
+            <img src="/logo.png" class="w-7 h-7 rounded-full" /> Dardcor <span class="text-white">AI</span>
+        </span>
       </div>
-      <div class="flex-1 flex flex-col items-center justify-center text-center opacity-60 px-4">
-        <i class="fas fa-galaxy text-4xl text-purple-800 mb-3"></i>
-        <p class="text-sm text-gray-500 leading-relaxed"> Silakan login untuk melihat<br />riwayat percakapan. </p>
-      </div>
-      <div class="h-16 flex items-center justify-center border-t border-purple-900/20 bg-[#08080c] safe-pb shrink-0">
-        <span class="text-xs text-purple-500/50 font-medium">Dardcor AI System</span>
+      <div class="flex-1 overflow-y-auto p-4 scrollbar-hide" id="chat-history">
+        <p class="text-xs text-gray-500 text-center mt-10">Belum ada riwayat percakapan.</p>
       </div>
     </aside>
-    <main id="content" class="flex-1 flex flex-col min-w-0 bg-[#050508] safe-pr transition-all duration-300 relative h-full">
+
+    <main id="content" class="flex-1 flex flex-col min-w-0 bg-[#050508] relative h-full">
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="star w-0.5 h-0.5 top-10 left-20 animate-star" style="animation-delay: 0s"></div>
-        <div class="star w-1 h-1 top-1/4 right-1/4 animate-star" style="animation-delay: 1s"></div>
+        <div class="star w-1 h-1 top-1/4 right-1/4 animate-star"></div>
         <div class="star w-0.5 h-0.5 bottom-1/3 left-1/3 animate-star" style="animation-delay: 2s"></div>
-        <div class="star w-1 h-1 top-20 right-10 animate-star" style="animation-delay: 1.5s"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-purple-900/10 rounded-full blur-[80px] md:blur-[100px] pointer-events-none"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[100px]"></div>
       </div>
-      <header class="h-16 shrink-0 flex items-center px-4 md:px-6 border-b border-purple-900/20 safe-pt bg-[#050508]/80 backdrop-blur-md z-30 justify-between sticky top-0">
-        <div class="flex items-center gap-3">
-          <button id="toggle-sidebar-btn" class="text-gray-400 p-2 hover:text-white transition-colors">
-            <i class="fas fa-bars"></i>
-          </button>
-        </div>
-        <div class="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide">
-          <a href="/dardcor" class="px-3 py-2 text-xs md:text-sm border border-purple-800/50 hover:border-purple-600 rounded-lg text-purple-200 hover:text-white hover:bg-purple-900/20 whitespace-nowrap transition-colors duration-200">Login</a>
-          <a href="/register" class="px-3 py-2 text-xs md:text-sm border border-purple-800/50 hover:border-purple-600 rounded-lg text-purple-200 hover:text-white hover:bg-purple-900/20 whitespace-nowrap transition-colors duration-200">Register</a>
-          <button id="pwa-install-btn" class="flex px-3 py-2 items-center justify-center rounded-lg border border-purple-800/50 text-purple-200 hover:text-white hover:bg-purple-900/20 hover:border-purple-500 transition-all duration-200 text-xs md:text-sm font-medium whitespace-nowrap"> Download App </button>
+
+      <header class="h-16 shrink-0 flex items-center px-4 border-b border-purple-900/20 bg-[#050508]/80 backdrop-blur-md z-30 justify-between">
+        <button id="toggle-sidebar-btn" class="text-gray-400 p-2 hover:text-white transition-colors">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <a href="/dardcor" class="px-3 py-1.5 text-xs border border-purple-800/50 rounded-lg text-purple-200 hover:bg-purple-900/20 transition-all">Login</a>
+          <button id="pwa-install-btn" class="px-3 py-1.5 text-xs bg-purple-900/40 border border-purple-500/50 rounded-lg text-white">Download App</button>
         </div>
       </header>
-      <section class="flex-1 overflow-y-auto scrollbar-hide relative z-10 flex flex-col items-center justify-center pt-8 md:pt-16">
-        <div class="w-full max-w-4xl mx-auto px-4 flex flex-col items-center justify-center pb-8">
-          <div class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center mb-6 md:mb-8 perspective-[1000px]">
-            <div class="absolute inset-0 bg-purple-900/20 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.3)] animate-orbit-1 border-t-transparent border-l-transparent"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.3)] animate-orbit-2 border-b-transparent border-r-transparent"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-violet-500/50 animate-orbit-3 border-t-transparent border-r-transparent"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-indigo-500/40 animate-orbit-4 border-b-transparent border-l-transparent"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-pink-500/40 animate-orbit-5 border-l-transparent border-r-transparent"></div>
-            <div class="absolute w-[110%] h-[110%] rounded-full border border-cyan-500/40 animate-orbit-6 border-t-transparent border-b-transparent"></div>
-            <div class="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-purple-400/20 bg-[#050508] relative z-10 shadow-[0_0_40px_rgba(147,51,234,0.3)]">
-              <div class="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-transparent to-black z-10"></div>
-              <img src="/logo.png" alt="Logo" class="relative w-full h-full object-cover opacity-90" />
-            </div>
-          </div>
-          <h2 class="text-3xl md:text-5xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]"> Dardcor AI </h2>
-          <p class="text-sm md:text-base text-purple-300/60 text-center max-w-xs md:max-w-md px-4 leading-relaxed font-light tracking-wide"> Jelajahi kecerdasan buatan tanpa batas </p>
-        </div>
-      </section>
-      <footer class="shrink-0 relative z-20 w-full bg-[#050508]">
-        <div class="w-full max-w-3xl mx-auto px-4 pb-4 md:pb-6 relative safe-pb">
-          <div id="file-preview-container" class="flex flex-wrap gap-2 mb-2 hidden pl-1"></div>
-          
-          <div class="bg-[#0e0e14] border border-purple-900/40 rounded-[1.5rem] p-3 shadow-[0_0_25px_rgba(88,28,135,0.15)] relative flex flex-col transition-colors pointer-events-none select-none opacity-75">
-            
-            <div id="drop-zone" class="hidden absolute inset-0 z-50 flex-col items-center justify-center bg-[#170526]/95 backdrop-blur-sm border-2 border-dashed border-purple-500 rounded-[1.5rem] transition-all">
-              <i class="fas fa-cloud-upload-alt text-4xl text-purple-400 mb-3 animate-bounce"></i>
-              <h3 class="text-purple-200 font-bold text-sm">Drag & Drop File</h3>
-              <p class="text-purple-500/70 text-xs mt-1">Maksimal 10 File (Semua Tipe)</p>
-            </div>
 
-            <textarea id="message-input" rows="1" disabled class="w-full bg-transparent resize-none outline-none text-purple-100 text-sm md:text-base placeholder:text-purple-500/40 px-2 mb-2 font-light max-h-32 overflow-y-auto leading-relaxed scrollbar-hide" placeholder="Ask To Dardcor..."></textarea>
+      <section id="chat-container" class="flex-1 overflow-y-auto scrollbar-hide relative z-10 flex flex-col items-center pt-8">
+        <div class="w-full max-w-4xl mx-auto px-4 flex flex-col items-center mb-10">
+          <div class="relative w-32 h-32 flex items-center justify-center mb-6">
+            <div class="absolute inset-0 bg-purple-900/30 rounded-full blur-2xl"></div>
+            <div class="absolute w-[120%] h-[120%] rounded-full border border-purple-500/40 animate-orbit-1"></div>
+            <img src="/logo.png" alt="Logo" class="relative w-20 h-20 object-cover z-10" />
+          </div>
+          <h2 class="text-3xl font-bold text-white tracking-tight">Dardcor AI</h2>
+          <p class="text-purple-300/60 text-sm mt-2 font-light">Eksplorasi Tanpa Batas</p>
+        </div>
+        
+        <div id="messages-wrapper" class="w-full max-w-3xl px-4 space-y-6 pb-20"></div>
+      </section>
+
+      <footer class="shrink-0 relative z-20 w-full bg-[#050508] p-4">
+        <div class="w-full max-w-3xl mx-auto relative">
+          <div id="file-preview-container" class="flex flex-wrap gap-2 mb-2 hidden"></div>
+          
+          <div class="input-container bg-[#0e0e14] border border-purple-900/40 rounded-[1.5rem] p-3 shadow-xl flex flex-col transition-all">
             
-            <div class="flex justify-between items-center mt-1 gap-2">
-              <div class="flex items-center gap-2">
-                <button id="file-upload-btn" type="button" disabled class="text-purple-500/40 hover:text-purple-300 transition-colors p-2 cursor-pointer rounded-full hover:bg-purple-900/20" title="Upload File">
+            <textarea id="message-input" rows="1" class="w-full bg-transparent resize-none outline-none text-purple-100 text-sm md:text-base placeholder:text-purple-500/40 px-2 mb-2 max-h-32 overflow-y-auto scrollbar-hide" placeholder="Tanya Dardcor AI..."></textarea>
+            
+            <div class="flex justify-between items-center mt-1">
+              <div class="flex items-center gap-1">
+                <button id="file-upload-btn" class="text-purple-500 hover:text-purple-300 p-2 transition-colors">
                   <i class="fas fa-paperclip text-lg"></i>
                 </button>
-                <input type="file" id="file-upload" class="hidden" multiple disabled>
+                <input type="file" id="file-upload" class="hidden" multiple>
 
-                <div class="relative">
-                  <button id="tools-btn" type="button" disabled class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-800/30 bg-purple-900/10 text-[11px] md:text-xs font-medium text-purple-400 hover:text-white hover:bg-purple-900/40 hover:border-purple-500/50 transition-all shadow-[0_0_10px_rgba(88,28,135,0.1)]">
-                    <i class="fas fa-cog"></i> <span class="whitespace-nowrap">Tools</span>
-                  </button>
-                  
-                  <div id="tools-menu" class="hidden absolute bottom-full left-0 mb-3 bg-[#170526] border border-purple-800/50 p-2 rounded-xl shadow-xl w-44 flex-col gap-2 z-50 backdrop-blur-md">
-                    <button id="search-btn" type="button" disabled class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-purple-900/30 text-[11px] text-purple-300 transition-colors">
-                      <i class="fas fa-globe w-4 text-center"></i> <span>Web Search</span>
-                    </button>
-                    <button id="vscode-btn" type="button" disabled class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-purple-900/30 text-[11px] text-purple-300 transition-colors">
-                      <i class="fas fa-code w-4 text-center"></i> <span>VS Code</span>
-                    </button>
-                    <button id="image-btn" type="button" disabled class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-purple-900/30 text-[11px] text-purple-300 transition-colors">
-                      <i class="fas fa-image w-4 text-center"></i> <span>Generate Image</span>
-                    </button>
-                  </div>
-                </div>
+                <button id="tools-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-800/30 bg-purple-900/10 text-[11px] text-purple-400 hover:bg-purple-900/40 transition-all">
+                  <i class="fas fa-cog"></i> <span>Tools</span>
+                </button>
               </div>
 
-              <div class="flex items-center gap-3 pr-1 flex-shrink-0">
-                <button id="mic-btn" type="button" disabled class="text-purple-500/40 hover:text-white transition-colors p-1 cursor-pointer" title="Voice Input">
+              <div class="flex items-center gap-3">
+                <button id="mic-btn" class="text-purple-500/60 hover:text-white p-1 transition-colors">
                   <i class="fas fa-microphone text-lg"></i>
                 </button>
                 
-                <button id="send-btn" type="button" disabled class="w-8 h-8 rounded-full bg-purple-900/20 border border-purple-800/30 flex items-center justify-center text-purple-400/80 hover:text-white hover:bg-purple-800 hover:border-purple-600 transition-all shadow-lg shadow-purple-900/10 cursor-pointer">
+                <button id="send-btn" class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center text-white hover:bg-purple-500 transition-all shadow-lg shadow-purple-900/20 active:scale-95">
                   <i id="send-icon" class="fas fa-paper-plane text-xs"></i>
                 </button>
               </div>
-
             </div>
           </div>
-          <div class="text-center mt-2 text-[10px] text-purple-500/30">Dardcor AI dapat membuat kesalahan. Periksa info penting.</div>
+          <div class="text-center mt-3 text-[10px] text-purple-500/30 font-light tracking-widest">DARDCOR AI SYSTEM V1.5.0.9</div>
         </div>
       </footer>
     </main>
+
     <script src="/js/index.js"></script>
   </body>
 </html>
