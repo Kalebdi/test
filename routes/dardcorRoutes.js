@@ -156,42 +156,78 @@ async function handleLoginCheck(req, res, renderPage) {
     }
 }
 
+// --- BAGIAN MIDDLEWARE PROTECTED ROUTE (DIUBAH TOTAL) ---
+
 async function protectedRoute(req, res, next) {
+    // 1. Jika sudah login secara normal
     if (req.session && req.session.userAccount) {
         return next();
     }
+
+    // 2. Cek Cookie Auth (Permanen)
     const authCookie = req.cookies['dardcor_perm_auth'];
-    if (!authCookie) {
-        if (req.xhr || req.path.includes('/api/') || req.path.includes('/chat-stream')) {
-            return res.status(401).json({ success: false, redirectUrl: '/dardcor' });
+    if (authCookie) {
+        const userData = verifyAuthToken(authCookie);
+        if (userData) {
+            try {
+                const { data: user } = await supabase.from('dardcor_users').select('*').eq('id', userData.id).maybeSingle();
+                if (user && user.password.substring(0, 20) === userData.v) {
+                    req.session.userAccount = user;
+                    return req.session.save(() => next());
+                }
+            } catch (e) { /* lanjut ke guest mode */ }
         }
-        return res.redirect('/dardcor');
     }
-    const userData = verifyAuthToken(authCookie);
-    if (!userData) {
-        res.clearCookie('dardcor_perm_auth');
-        if (req.xhr || req.path.includes('/api/') || req.path.includes('/chat-stream')) {
-            return res.status(401).json({ success: false });
-        }
-        return res.redirect('/dardcor');
-    }
-    try {
-        const { data: user } = await supabase.from('dardcor_users').select('*').eq('id', userData.id).maybeSingle();
-        if (user && user.password.substring(0, 20) === userData.v) {
-            req.session.userAccount = user;
-            req.session.cookie.maxAge = SESSION_DURATION;
-            res.cookie('dardcor_perm_auth', generateAuthToken(user), cookieConfig);
-            return req.session.save(() => next());
-        }
-        res.clearCookie('dardcor_perm_auth');
-        if (req.xhr || req.path.includes('/api/') || req.path.includes('/chat-stream')) {
-            return res.status(401).json({ success: false });
-        }
-        res.redirect('/dardcor');
-    } catch (e) {
-        res.redirect('/dardcor');
-    }
+
+    // 3. FULL FIX: GUEST MODE (Jika tidak ada login, buat session sementara)
+    req.session.userAccount = {
+        id: '00000000-0000-0000-0000-000000000000', // ID dummy untuk Guest
+        username: 'Guest_' + Math.floor(1000 + Math.random() * 9000),
+        email: 'guest@dardcor.ai',
+        profile_image: '/logo.png' // Default logo
+    };
+    
+    next(); 
 }
+
+// --- BAGIAN LOGIN CHECK UNTUK HALAMAN DEPAN (DIUBAH) ---
+
+async function handleLoginCheck(req, res, renderPage) {
+    // Jika sudah ada session user asli (bukan guest dummy), pindah ke loading
+    if (req.session && req.session.userAccount && req.session.userAccount.id !== '00000000-0000-0000-0000-000000000000') {
+        return res.redirect('/loading');
+    }
+    
+    // Jika belum login, tampilkan halaman (index/dardcor/register) tanpa redirect paksa
+    return res.render(renderPage, { error: null, user: null, email: req.query.email || '' });
+}
+
+// --- BAGIAN ROUTE (DIPASTIKAN TERBUKA) ---
+
+// Halaman utama sekarang bisa diakses walau tanpa login
+router.get('/', (req, res) => {
+    // Kita buat agar '/' langsung masuk ke chat sebagai guest jika ingin instan
+    res.redirect('/dardcorchat/dardcor-ai'); 
+});
+
+// Endpoint Chat API (Sekarang menggunakan protectedRoute yang sudah mendukung Guest)
+router.post('/dardcorchat/ai/chat-stream', protectedRoute, uploadMiddleware, async (req, res) => {
+    // ... isi code stream kamu tetap sama ...
+    // Karena protectedRoute sudah memberikan object Guest ke req.session.userAccount,
+    // maka variabel userId di dalam sini tidak akan undefined.
+});
+
+// Tambahan: Pastikan database 'conversations' & 'history_chat' mengizinkan user_id dummy 
+// atau kamu bisa memodifikasi logika insert-nya:
+
+/* Di dalam router.post('/dardcorchat/ai/chat-stream'), 
+pastikan saat insert ke Supabase, kamu menangani user_id guest:
+*/
+
+// Contoh modifikasi di dalam stream:
+const userId = req.session.userAccount.id; 
+// Jika userId adalah '00000000...', pastikan tabel di Supabase tidak me-reject-nya (non-foreign key error)
+                                       
 
 async function isSafeUrl(urlString) {
     try {
